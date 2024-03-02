@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Kids Quiz Game</title>
+    <style>
+        #quiz-container {
+            text-align: center;
+            margin-top: 20px;
+        }
+        
+        #quizCanvas {
+            display: none;
+            border: 2px solid black;
+            margin: 0 auto;
+        }
+        
+        #difficulty-buttons {
+            text-align: center;
+        }
+        
+        button {
+            padding: 10px 20px;
+            margin: 10px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div id="difficulty-buttons">
+        <button onclick="startQuiz('easy')">Easy</button>
+        <button onclick="startQuiz('medium')">Medium</button>
+        <button onclick="startQuiz('hard')">Hard</button>
+    </div>
+    <div id="quiz-container">
+        <canvas id="quizCanvas" width="800" height="600"></canvas>
+    </div>
+    <script>
+        const canvas = document.getElementById("quizCanvas");
+        const ctx = canvas.getContext("2d");
+        const difficultyButtons = document.getElementById("difficulty-buttons");
+        const quizContainer = document.getElementById("quiz-container");
+
+        let currentDifficulty = null;
+
+        const questions = {
+            easy: [
+                {
+                    question: "What color is the sky?",
+                    options: ["Red", "Green", "Blue", "Yellow"],
+                    correctAnswer: "Blue"
+                },
+                {
+                    question: " What sweet snack is typically left out for Santa?",
+                    options: ["Cookies", "Milk", "Biscuits", "Lechon"],
+                    correctAnswer: "Cookies"
+                },
+                {
+                    question: " Which planet is closest to Earth?",
+                    options: ["Mercury", "Venus", "Saturn", "Pluto"],
+                    correctAnswer: "Mercury"
+                },
+                {
+                    question: " What is the fastest land animal?",
+                    options: ["Cheetah", "Lion", "Tiger", "Wolf"],
+                    correctAnswer: "Cheetah"
+                },
+                {
+                    question: " What is the sweet food made by bees?",
+                    options: ["Honey", "Sugar", "Chocolate", "Candy"],
+                    correctAnswer: "Honey"
+                },
+
+
+
+                // Add more easy questions here
+            ],
+            medium: [
+                {
+                    question: "How many fingers does a human have?",
+                    options: ["3", "4", "5", "6"],
+                    correctAnswer: "5"
+                },
+                {
+                    question: " What is the largest planet in our solar system?",
+                    options: ["Mercury", "Venus", "Jupiter", "Pluto"],
+                    correctAnswer: "Jupiter"
+                },
+                {
+                    question: "What is the largest ocean on Earth?",
+                    options: ["Pacfic", "Atlantic", "Indian", "Antartic"],
+                    correctAnswer: "Pacific"
+                },
+                {
+                    question: "What does a thermometer measure?",
+                    options: ["Temperature", "Weight", "Celcius", "Height"],
+                    correctAnswer: "Temperature"
+                },
+                {
+                    question: "What is the name of the fairy in Peter Pan?",
+                    options: ["Elsa", "Cinderella", "Tinkerbell", "Moana"],
+                    correctAnswer: "Tinkerbell"
+                },
+
+                // Add more medium questions here
+            ],
+            hard: [
+                {
+                    question: "What is the capital of France?",
+                    options: ["Paris", "London", "Berlin", "Madrid"],
+                    correctAnswer: "Paris"
+                },
+                {
+                    question: "What is the name of a group of stars?",
+                    options: ["Black Hole", "Universe", "Galaxy", "Constellation"],
+                    correctAnswer: "Constellation"
+                },
+                {
+                    question: "What is the longest river in the world?",
+                    options: ["Amazon River", "Nile River", "Congo River", "Yellow River"],
+                    correctAnswer: "Nile River"
+                },
+                {
+                    question: " What school did Harry Potter attend?",
+                    options: ["De La Salle - Dasmarinas", "Hogwarts", "LPU-Cavite", "UST"],
+                    correctAnswer: "De La Salle - Dasmarinas"
+                },
+                {
+                    question: "Who is the Rat in Touhou ",
+                    options: ["Cirno", "Reimu", "Tewi", "Nazrin"],
+                    correctAnswer: "Nazrin"
+                },
+                // Add more hard questions here
+            ]
+        };
+
+        function drawQuestion() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            const currentQuestion = questions[currentDifficulty][currentQuestionIndex];
+
+            ctx.fillStyle = "black";
+            ctx.font = "24px Arial";
+            ctx.fillText(`Question ${currentQuestionIndex + 1}: ${currentQuestion.question}`, 20, 50);
+
+            // Draw answer options
+            ctx.font = "20px Arial";
+            for (let i = 0; i < currentQuestion.options.length; i++) {
+                const option = currentQuestion.options[i];
+                const optionY = 100 + i * 50;
+
+                ctx.fillText(option, 50, optionY);
+            }
+        }
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+
+        function checkAnswer(selectedOption) {
+            const currentQuestion = questions[currentDifficulty][currentQuestionIndex];
+
+            if (selectedOption === currentQuestion.correctAnswer) {
+                score++;
+            }
+
+            currentQuestionIndex++;
+
+            if (currentQuestionIndex < questions[currentDifficulty].length) {
+                drawQuestion();
+            } else {
+                // Quiz completed
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = "black";
+                ctx.font = "24px Arial";
+                ctx.fillText(`Quiz completed! Your score: ${score} out of ${questions[currentDifficulty].length}`, 20, 50);
+            }
+        }
+
+        canvas.addEventListener("click", (event) => {
+            const x = event.clientX - canvas.getBoundingClientRect().left;
+            const y = event.clientY - canvas.getBoundingClientRect().top;
+
+            const currentQuestion = questions[currentDifficulty][currentQuestionIndex];
+
+            // Check if the click is within one of the answer options
+            for (let i = 0; i < currentQuestion.options.length; i++) {
+                const optionY = 100 + i * 50;
+
+                if (x > 50 && x < 250 && y > optionY - 20 && y < optionY + 20) {
+                    checkAnswer(currentQuestion.options[i]);
+                }
+            }
+        });
+
+        function startQuiz(difficulty) {
+            currentDifficulty = difficulty;
+            currentQuestionIndex = 0;
+            score = 0;
+
+            difficultyButtons.style.display = "none";
+            quizCanvas.style.display = "block";
+
+            drawQuestion();
+        }
+    </script>
+</body>
+</html>
